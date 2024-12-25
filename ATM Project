@@ -1,0 +1,126 @@
+
+import java.sql.*;
+        import java.util.Scanner;
+
+public class ATM {
+
+
+    public static void main(String[] args) throws SQLException {
+
+
+        String url = "jdbc:postgresql://localhost:5432/Demo";
+
+        String username = "postgres";
+
+        String password = "Rajesh@123";
+        try {
+            Connection con = DriverManager.getConnection(url, username, password);
+
+
+            Statement s1 = con.createStatement();
+
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Welcome To OCOC Bank IN ATM");
+            System.out.println("Enter Your Pin Number:");
+            int pin = sc.nextInt();
+
+
+            String query = "SELECT name, balance FROM ATM1 WHERE pin=?";
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                ps.setInt(1, pin);
+                ResultSet r = ps.executeQuery();
+
+
+                if (r.next()) {
+
+                    String name = r.getString("name");
+
+                    int balance = r.getInt("balance");
+
+                    System.out.println("Hello, " + name);
+
+
+                    int choice;
+                    int amount = 0;
+                    int take_amount = 0;
+//                    int changepin = 0;
+//                    int oldpin = 0;
+
+
+                    while (true) {
+                        System.out.println("press 1 to check balance");
+                        System.out.println("press 2 to Add Amount");
+                        System.out.println("press 3 to Take Amount");
+                        System.out.println("press 4 to print the recipt");
+//                        System.out.println("press 5 to Add New Pin No");
+                        System.out.println("press 5 to Exit/Quit");
+
+                        System.out.println();
+                        System.out.println("Enter Your Chioce:");
+                        choice = sc.nextInt();
+
+                        switch (choice) {
+                            case 1:
+                                System.out.println("Your Balance is:" + balance);
+                                break;
+                            case 2:
+                                System.out.println("How Much Amount Did You Want To Add");
+                                amount = sc.nextInt();
+                                balance = balance + amount;
+
+                                String sql = "UPDATE ATM1 SET balance = " + balance + " WHERE pin = " + pin;
+                                int rowsUpdated = s1.executeUpdate(sql);
+                                if (rowsUpdated > 0) {
+                                    System.out.println("Successfully added now your current balance is:" + balance);
+                                } else {
+                                    System.out.println("Error updating balance.");
+                                }
+
+                                break;
+                            case 3:
+                                System.out.println("How Much Amount Did You Want To Take");
+                                take_amount = sc.nextInt();
+                                if (take_amount > balance) {
+                                    System.out.println("your balance is insufficient");
+                                } else {
+                                    balance = balance - take_amount;
+                                    int sub = s1.executeUpdate("UPDATE ATM1 SET balance = " + balance + " WHERE pin =" + pin);
+                                    System.out.println("widthdraw successfull.. new Your Current Balance is:" + balance);
+                                }
+                                break;
+                            case 4:
+                                System.out.println("Thanks For Coming");
+                                System.out.println("In Your Bank Account in Amount Added is :" + amount);
+                                System.out.println("In Your Bank Account in your withdraw Amount is :" + take_amount);
+                                System.out.println("Your current Balance is :" + balance);
+                                break;
+                        }
+
+
+                        if (choice == 5) {
+                            System.out.println("Goodbye!");
+                            System.out.println("Thank You for Coming");
+                            break;
+                        }
+
+                    }
+
+                } else {
+                    System.out.println("wrong pin number");
+                }
+
+
+
+
+
+            }
+
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+
+
+    }
+
+}
